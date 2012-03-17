@@ -4,7 +4,7 @@ describe UsersController do
 	render_views
 
 	describe "GET 'index'" do
-
+ 
 		describe "for non-signed in users" do
 			it "should deny access" do
 				get :index
@@ -13,7 +13,7 @@ describe UsersController do
 			end
 		end
 
-		describe "for signed-in users" do
+		describe "for non-admin users" do
 
 			before(:each) do
 				@user = test_sign_in (Factory(:user))
@@ -43,12 +43,30 @@ describe UsersController do
 				end
 			end
 
+			it "should not have a delete option for users" do
+				get :index
+				response.should_not have_selector("li", :content => "delete")
+			end
+
 			it "should paginate users" do
 				get :index
 				response.should have_selector("div.pagination")
 				response.should have_selector("span.disabled", :content => "Previous")
 				response.should have_selector("a", :href => "/users?page=2", :content => "2")
 				response.should have_selector("a", :href => "/users?page=2", :content => "Next")
+			end
+		end
+
+		describe "for admin users" do
+
+			before(:each) do
+				admin = Factory(:user, :email => "admin@example.com", :admin => true)
+				test_sign_in(admin)
+			end
+
+			it "should have a delete option for users" do
+				get :index
+				response.should have_selector("li", :content => "delete")
 			end
 		end
 	end
@@ -116,9 +134,37 @@ describe UsersController do
 			get :new
 			response.should have_selector("input[name='user[password_confirmation]'][type='password']")
 		end
+
+		describe "for signed-in user" do
+
+			before(:each) do
+				@user = Factory(:user)
+				test_sign_in(@user)
+			end
+
+			it "should redirect to the root url" do
+				get :new
+				response.should redirect_to(root_url)
+			end
+		end
 	end
 
 	describe "POST 'create'" do
+
+		describe "for signed-in users" do
+
+			before(:each) do
+				@attr = { :name => "New User", :email => "user@example.com",
+							:password => "foobar", :password_confirmation => "foobar" }
+				@user = Factory(:user)
+				test_sign_in(@user)
+			end
+
+			it "should redirect to the root url" do
+				post :create, :user => @attr
+				response.should redirect_to(root_url)
+			end
+		end
 
 		describe "failure" do
 
@@ -308,8 +354,8 @@ describe UsersController do
 		describe "as an admin user" do
 
 			before(:each) do
-				admin = Factory(:user, :email => "admin@example.com", :admin => true)
-				test_sign_in(admin)
+				@admin = Factory(:user, :email => "admin@example.com", :admin => true)
+				test_sign_in(@admin)
 			end
 
 			it "should destroy the user" do
@@ -320,6 +366,13 @@ describe UsersController do
 
 			it "should redirect to the users page" do
 				delete :destroy, :id => @user
+				response.should redirect_to(users_path)
+			end
+
+			it "should not let the admin destroy itself" do
+				lambda do
+					delete :destroy, :id => @admin
+				end.should change(User, :count).by(0)
 				response.should redirect_to(users_path)
 			end
 		end
