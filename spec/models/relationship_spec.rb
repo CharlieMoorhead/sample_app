@@ -48,4 +48,23 @@ describe Relationship do
 			@relationship.should_not be_valid
 		end
 	end
+
+	describe "dependent :delete" do
+
+		before(:each) do
+			@relationship.save
+		end
+
+		it "should destroy the relationship when the followed is destroyed" do
+			lambda do
+				@followed.destroy
+			end.should change(Relationship, :count).by(-1)
+		end
+
+		it "should destroy the relationship when the follower is destroyed" do
+			lambda do
+				@follower.destroy
+			end.should change(Relationship, :count).by(-1)
+		end
+	end
 end
