@@ -5,7 +5,7 @@ describe MicropostsController do
 
 	describe "access control" do
 
-		it "should dney access to 'create'" do
+		it "should deny access to 'create'" do
 			post :create
 			response.should redirect_to(signin_path)
 		end
@@ -70,7 +70,7 @@ describe MicropostsController do
 
 			before(:each) do
 				@user = Factory(:user)
-				wrong_user = Factory(:user, :email => Factory.next(:email))
+				wrong_user = Factory(:user, :username => Factory.next(:username), :email => Factory.next(:email))
 				test_sign_in(wrong_user)
 				@micropost = Factory(:micropost, :user => @user)
 			end

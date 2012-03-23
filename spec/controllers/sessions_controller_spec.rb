@@ -22,7 +22,7 @@ describe SessionsController do
 		describe "invalid signin" do
 
 			before(:each) do
-				@attr = { :email => "email@example.com", :password => "invalid" }
+				@attr = { :username => "example", :password => "invalid" }
 			end
 
 			it "should re-render the new page" do
@@ -41,11 +41,11 @@ describe SessionsController do
 			end
 		end
 
-		describe "with valid email and password" do
+		describe "with valid username and password" do
 
 			before(:each) do
 				@user = Factory(:user)
-				@attr = { :email => @user.email, :password => @user.password }
+				@attr = { :username => @user.username, :password => @user.password }
 			end
 
 			it "should sign the user in" do
@@ -54,9 +54,15 @@ describe SessionsController do
 				controller.should be_signed_in
 			end
 
-			it "should redirect to the user show page" do
+			it "should redirect to the home page" do
 				post :create, :session => @attr
-				response.should redirect_to(user_path(@user))
+				response.should redirect_to(root_url)
+			end
+
+			it "should accept a username without being case sensitive" do
+				post :create, :session => @attr.merge(:username => @user.username.upcase)
+				controller.current_user.should == @user
+				controller.should be_signed_in
 			end
 		end
 	end

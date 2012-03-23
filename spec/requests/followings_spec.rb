@@ -4,9 +4,9 @@ describe "Followings" do
 
 	before(:each) do
 		@user = Factory(:user)
-		@followed = Factory(:user, :email => Factory.next(:email))
+		@followed = Factory(:user, :username => Factory.next(:username), :email => Factory.next(:email))
 		visit signin_path
-		fill_in :email, :with => @user.email
+		fill_in :username, :with => @user.username
 		fill_in :password, :with => @user.password
 		click_button
 	end

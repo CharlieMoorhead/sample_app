@@ -12,7 +12,7 @@
 require 'digest'
 class User < ActiveRecord::Base
 	attr_accessor :password
-	attr_accessible :name, :email, :password, :password_confirmation
+	attr_accessible :username, :name, :email, :password, :password_confirmation
 
 	has_many :microposts, :dependent => :destroy
 	has_many :relationships, :foreign_key => "follower_id", :dependent => :destroy
@@ -22,6 +22,9 @@ class User < ActiveRecord::Base
 
 	email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
 
+	validates :username, :presence => true,
+						:length => { :maximum => 50},
+						:uniqueness => { :case_sensitive => false }
 	validates :name, :presence => true,
 						:length	=> { :maximum => 50 }
 	validates :email, :presence => true,
@@ -38,8 +41,8 @@ class User < ActiveRecord::Base
 		encrypted_password == encrypt(submitted_password)
 	end
 
-	def self.authenticate(email, submitted_password)
-		user = find_by_email(email)
+	def self.authenticate(username, submitted_password)
+		user = find(:first, :conditions => [ "lower(username) = ?", username.downcase])
 		return nil if user.nil?
 		return user if user.has_password?(submitted_password)
 	end

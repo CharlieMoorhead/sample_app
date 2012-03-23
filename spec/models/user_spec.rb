@@ -15,6 +15,7 @@ describe User do
 
 	before(:each) do
 		@attr = { 
+			:username => "ExampleUser",
 			:name => "Example User",
 			:email => "user@example.com",
 			:password => "foobar",
@@ -26,6 +27,11 @@ describe User do
 		User.create!(@attr)
 	end
 
+	it "should require a username" do
+		no_username_user = User.new(@attr.merge(:username => ""))
+		no_username_user.should_not be_valid
+	end
+
 	it "should require a name" do
 		no_name_user = User.new(@attr.merge(:name => ""))
 		no_name_user.should_not be_valid
@@ -34,6 +40,25 @@ describe User do
 	it "should require an email address" do
 		no_email_user = User.new(@attr.merge(:email => ""))
 		no_email_user.should_not be_valid
+	end
+
+	it "should reject usernames that are too long" do
+		long_username = "a" * 51
+		long_username_user = User.new(@attr.merge(:username => long_username))
+		long_username_user.should_not be_valid
+	end
+
+	it "should reject duplicate usernames" do
+		User.create!(@attr)
+		user_with_duplicate_username = User.new(@attr)
+		user_with_duplicate_username.should_not be_valid
+	end
+
+	it "should reject usernames identical up to case" do
+		upcased_username = @attr[:username].upcase
+		User.create!(@attr.merge(:username => upcased_username))
+		user_with_duplicate_username = User.new(@attr)
+		user_with_duplicate_username.should_not be_valid
 	end
 
 	it "should reject names that are too long" do
@@ -122,7 +147,7 @@ describe User do
 		describe "authenticate method" do
 
 			it "should return nil on email/password mismatch" do
-				wrong_password_user = User.authenticate(@attr[:email], "wrongpass")
+				wrong_password_user = User.authenticate(@attr[:username], "wrongpass")
 				wrong_password_user.should be_nil
 			end
 
@@ -132,7 +157,7 @@ describe User do
 			end
 
 			it "should return the user on email/password match" do
-				matching_user = User.authenticate(@attr[:email], @attr[:password])
+				matching_user = User.authenticate(@attr[:username], @attr[:password])
 				matching_user.should == @user
 			end
 		end

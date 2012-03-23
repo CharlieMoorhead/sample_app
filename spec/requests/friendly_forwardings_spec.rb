@@ -6,7 +6,7 @@ describe "FriendlyForwardings" do
 		user = Factory(:user)
 		visit edit_user_path(user)
 		# The test automatically follows the redirect to the signin page.
-		fill_in :email, :with => user.email
+		fill_in :username, :with => user.username
 		fill_in :password, :with => user.password
 		click_button
 		# The test should redirect again, this time to users/edit.

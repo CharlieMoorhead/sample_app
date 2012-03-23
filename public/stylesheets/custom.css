@@ -26,6 +26,17 @@ section h1 {
 	font-size: 200%;
 }
 
+.show_username {
+	font-size: 50%;
+	color: #808080;
+	margin-left: 60px;
+}
+
+.index_username {
+	font-size: 75%;
+	color: #808080;
+}
+
 /* Navigation */
 
 nav {

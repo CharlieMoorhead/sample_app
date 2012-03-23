@@ -3,7 +3,10 @@
 		<td class="main">
 			<h1>
 				<%= gravatar_for @user %>
-				<%= @user.name %>
+				<%= @user.name %><br />
+				<div class="show_username">
+					@<%= @user.username %>
+				</div>
 			</h1>
 			<%= render 'follow_form' if signed_in? %>
 			<% unless @user.microposts.empty? %>
