@@ -15,6 +15,11 @@ def make_users
 					:password => "foobar",
 					:password_confirmation => "foobar")
 	admin.toggle!(:admin)
+	User.create!(:username => "thechaz",
+				 :name => "The Chaz",
+				 :email => "chaz@chaz.chaz",
+				 :password => "foobar",
+				 :password_confirmation => "foobar")
 	99.times do |n|
 		name = Faker::Name.name
 		username = name.gsub(/\s+/, "")

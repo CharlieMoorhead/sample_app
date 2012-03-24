@@ -63,12 +63,24 @@ describe Micropost do
 			Micropost.from_users_followed_by(@user).should include(@other_post)
 		end
 
-		it "should include the user's own microposts" do
-			Micropost.from_users_followed_by(@user).should include(@user_post)
-		end
-
 		it "should not include an unfollowed user's microposts" do
 			Micropost.from_users_followed_by(@user).should_not include(@third_post)
+		end
+	end
+
+	describe "replies" do
+
+		before(:each) do
+			@other_user = Factory(:user, :username => Factory.next(:username), :email => Factory.next(:email))
+		end
+
+		it "should create a reply given valid attributes" do
+			@user.microposts.create!(@attr.merge(:in_reply_to => @other_user.id))
+		end
+
+		it "should respond to reply? method" do
+			user_post = @user.microposts.build(@attr.merge(:in_reply_to => @other_user.id))
+			user_post.should respond_to(:reply?)
 		end
 	end
 end

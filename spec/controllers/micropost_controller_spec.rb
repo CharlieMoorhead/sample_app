@@ -62,6 +62,20 @@ describe MicropostsController do
 				flash[:success].should =~ /micropost created/i
 			end
 		end
+
+		describe "replies" do
+
+			before(:each) do
+				@other_user = Factory(:user, :username => Factory.next(:username), :email => Factory.next(:email))
+				@attr = { :content => "Lorem ipsum", :in_reply_to => @other_user.id }
+			end
+
+			it "should create a micropost as a reply" do
+				lambda do
+					post :create, :micropost => @attr
+				end.should change(Micropost, :count).by(1)
+			end
+		end
 	end
 
 	describe "DELETE 'destroy'" do

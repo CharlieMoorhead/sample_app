@@ -65,7 +65,8 @@ class User < ActiveRecord::Base
 	end
 
 	def feed
-		Micropost.from_users_followed_by(self)
+		posts = Micropost.from_users_followed_by(self).where(:in_reply_to => nil) | Micropost.from_replies(self)
+		posts.sort { |a,b| b.created_at <=> a.created_at }
 	end
 
 	private
