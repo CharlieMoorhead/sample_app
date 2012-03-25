@@ -5,4 +5,9 @@ module UsersHelper
 						   						:class => 'gravatar',
 						   						:gravatar => options)
 	end
+
+	def messages_user_path(user)
+		"/users/#{user.id}/messages/"
+	end
+
 end

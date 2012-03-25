@@ -3,14 +3,16 @@ class MicropostsController < ApplicationController
 	before_filter :authorized_user, :only => :destroy
 
 	def create
-		post = make_reply(params[:micropost])
-		@micropost = current_user.microposts.build(post)
-		if @micropost.save
-			flash[:success] = "Micropost created!"
-			redirect_to root_path
-		else
-			@feed_items = []
-			render 'pages/home'
+		unless send_message(params[:micropost])
+			post = make_reply(params[:micropost])
+			@micropost = current_user.microposts.build(post)
+			if @micropost.save
+				flash[:success] = "Micropost created!"
+				redirect_to root_path
+			else
+				@feed_items = []
+				render 'pages/home'
+			end
 		end
 	end
 
@@ -41,6 +43,19 @@ class MicropostsController < ApplicationController
 				end
 			else
 				nil
+			end
+		end
+
+		def send_message micropost_params
+			if (micropost_params[:content].scan(/\Ad@\S+/).first)
+				content = micropost_params[:content][1..-1]
+				recipient_id = find_replied(content)
+				message = current_user.sent_messages.build(:content => content, :recipient_id => recipient_id)
+				if message.save
+					flash[:success] = "Message sent."
+					redirect_to root_url(current_user)
+					return true
+				end
 			end
 		end
 end

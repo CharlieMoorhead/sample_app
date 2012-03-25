@@ -38,4 +38,18 @@ describe "Microposts" do
 			end
 		end
 	end
+
+	describe "create message" do
+
+		it "should send a new message" do
+			recipient = Factory(:user, :username => Factory.next(:username), :email => Factory.next(:email))
+			content = "d@#{recipient.username} Lorem ipsum dolor sit amet"
+			lambda do
+				visit root_path
+				fill_in :micropost_content, :with => content
+				click_button
+				response.should have_selector("div.flash", :content => "Message sent.")
+			end.should change(Message, :count).by(1)
+		end
+	end
 end

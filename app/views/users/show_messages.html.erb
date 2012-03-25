@@ -1,0 +1,24 @@
+<table class="microposts" summary="Information about messages">
+	<tr>
+		<td class="main">
+			<h1>
+				<%= gravatar_for @user %>
+				<%= @title %><br />
+				<div class="show_username">
+					@<%= @user.username %>
+				</div>
+			</h1>
+
+			<% unless @messages.empty? %>
+				<table class="microposts">
+					<%= render @messages %>
+				</table>
+				<%= will_paginate @messages %>
+			<% end %>
+		</td>
+		<td class="sidebar round">
+			<%= render 'shared/user_show_stats' %>
+			<%= render 'shared/stats' %>
+		</td>
+	</tr>
+</table>

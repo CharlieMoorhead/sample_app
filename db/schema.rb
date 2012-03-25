@@ -11,7 +11,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120323220218) do
+ActiveRecord::Schema.define(:version => 20120324214835) do
+
+  create_table "messages", :force => true do |t|
+    t.integer  "sender_id"
+    t.integer  "recipient_id"
+    t.string   "content"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "messages", ["recipient_id"], :name => "index_messages_on_recipient_id"
 
   create_table "microposts", :force => true do |t|
     t.string   "content"

@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
 	before_filter :authenticate, :except => [:show, :new, :create]
-	before_filter :correct_user, :only => [:edit, :update]
+	before_filter :correct_user, :only => [:edit, :update, :sent_messages, :received_messages]
 	before_filter :admin_user, :only => :destroy
 	before_filter :same_user, :only => :destroy
 	before_filter :existing_user, :only => [:new, :create]
@@ -69,6 +69,27 @@ class UsersController < ApplicationController
 		@user = User.find(params[:id])
 		@users = @user.send(action).paginate(:page => params[:page])
 		render 'show_follow'
+	end
+
+	def sent_messages
+		show_messages(:sent_messages)
+	end
+
+	def received_messages
+		show_messages(:received_messages)
+	end
+
+	def show_messages(action)
+		@title = "Messages"
+		@user = User.find(params[:id])
+		m = @user.sent_messages | @user.received_messages
+		m.sort! { |a,b| b.created_at <=> a.created_at }
+		@messages = m.paginate(:page => params[:page])
+		render 'show_messages'
+		#@title = action.to_s.capitalize.gsub('_',' ')
+		#@user = User.find(params[:id])
+		#@messages = @user.send(action).paginate(:page => params[:page])
+		#render 'show_messages'
 	end
 
 	private

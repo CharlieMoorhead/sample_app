@@ -5,6 +5,7 @@ namespace :db do
 		make_users
 		make_microposts
 		make_relationships
+		make_messages
 	end
 end
 
@@ -48,4 +49,15 @@ def make_relationships
 	followers = users[3..40]
 	following.each { |followed| user.follow!(followed) }
 	followers.each { |follower| follower.follow!(user) }
+end
+
+def make_messages
+	20.times do
+		User.all(:limit => 2).each do |sender|
+			User.all(:limit => 2).each do |recipient|
+				sender.sent_messages.create!(:content => "@#{recipient.username} " + Faker::Lorem.sentence(5),
+											 :recipient_id => recipient.id) unless sender.id == recipient.id
+			end
+		end
+	end
 end

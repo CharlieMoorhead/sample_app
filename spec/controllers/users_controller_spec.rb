@@ -437,4 +437,61 @@ describe UsersController do
 			end
 		end
 	end
+
+	describe "messages pages" do
+
+		describe "when not signed in" do
+
+			it "should protect 'sent_messages'" do
+				get :sent_messages, :id => 1
+				response.should redirect_to(signin_path)
+			end
+
+			it "should protect 'received_messages'" do
+				get :received_messages, :id => 1
+				response.should redirect_to(signin_path)
+			end
+		end
+
+		describe "when signed in as the wrong user" do
+
+			before(:each) do
+				@user = Factory(:user)
+				@other_user = test_sign_in(Factory(:user, :username => Factory.next(:username), :email => Factory.next(:email)))
+			end
+
+			it "should protect 'sent_messages'" do
+				get :sent_messages, :id => @user.id
+				response.should redirect_to(root_url)
+			end
+
+			it "should protect 'received_messages'" do
+				get :received_messages, :id => @user.id
+				response.should redirect_to(root_url)
+			end
+		end
+
+		describe "when signed in as the right user" do
+
+			before(:each) do
+				@sender = Factory(:user)
+				@recipient = Factory(:user, :username => Factory.next(:username), :email => Factory.next(:email))
+				message = @sender.sent_messages.create!(:content => "foobar", :recipient_id => @recipient.id)
+			end
+
+			it "should show the sent message on the sender's 'sent_messages'" do
+				test_sign_in(@sender)
+				get :sent_messages, :id => @sender.id
+				response.should have_selector("a", :href => user_path(@sender), :content => @sender.name)
+				response.should have_selector("td", :content => "foobar")
+			end
+
+			it "should show the received message on the recipient's 'received_messages'" do
+				test_sign_in(@recipient)
+				get :received_messages, :id => @recipient.id
+				response.should have_selector("a", :href => user_path(@sender), :content => @sender.name)
+				response.should have_selector("td", :content => "foobar")
+			end
+		end
+	end
 end
